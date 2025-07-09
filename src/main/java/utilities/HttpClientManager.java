@@ -92,7 +92,7 @@ public class HttpClientManager {
                     .build();
         } catch (KeyStoreException | IOException | CertificateException |
                 NoSuchAlgorithmException | KeyManagementException | UnrecoverableKeyException e) {
-            logger.error("Exception caught while creating HttpClient:: {}", e.getMessage(), e);
+            logger.error("Exception caught while creating HttpClient: {}", e.getMessage(), e);
             return null;
         }
         return httpClient;
