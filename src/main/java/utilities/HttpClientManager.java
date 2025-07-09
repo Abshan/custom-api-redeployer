@@ -31,7 +31,7 @@ public class HttpClientManager {
     private static final int SOCKET_TIMEOUT_MS = 30000; // 30 seconds
     static String KEY_STORE_PATH = "";
     static String KEY_STORE_PASSWORD = "";
-
+    static String SOCKET_TIMEOUT = "";
     private HttpClientManager() {
     }
 
@@ -92,7 +92,7 @@ public class HttpClientManager {
                     .build();
         } catch (KeyStoreException | IOException | CertificateException |
                 NoSuchAlgorithmException | KeyManagementException | UnrecoverableKeyException e) {
-            logger.error("Exception caught while creating HttpClient: {}", e.getMessage(), e);
+            logger.error("Exception caught while creating HttpClient:: {}", e.getMessage(), e);
             return null;
         }
         return httpClient;
