@@ -24,6 +24,7 @@ public class DeploymentService {
     static String apiListOrderBy;
     static String keyStorePath;
     static String keyStorePassword;
+    static String socketTimeout;
 
     public static void main(String[] args) {
         logger.info("Starting the API deployment service...");
@@ -140,6 +141,7 @@ public class DeploymentService {
         apiListOffset = loadAndValidateProperty(configs, "API.LIST.OFFSET");
         apiListSortBy = loadAndValidateProperty(configs, "API.LIST.SORTBY");
         apiListOrderBy = loadAndValidateProperty(configs, "API.LIST.ORDERBY");
+        socketTimeout = loadAndValidateProperty(configs, "SOCKET.TIMEOUT");
     }
 
     private static String loadAndValidateProperty(ReadConfigFile configs, String propertyName) {

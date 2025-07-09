@@ -28,10 +28,10 @@ public class HttpClientManager {
 
     private static CloseableHttpClient httpClientInstance;
     private static final int CONNECTION_TIMEOUT_MS = 5000; // 5 seconds
-    private static final int SOCKET_TIMEOUT_MS = 30000; // 30 seconds
+    //private static final int SOCKET_TIMEOUT_MS = 30000; // 30 seconds
     static String KEY_STORE_PATH = "";
     static String KEY_STORE_PASSWORD = "";
-
+    static String SOCKET_TIMEOUT = "";
     private HttpClientManager() {
     }
 
@@ -52,6 +52,7 @@ public class HttpClientManager {
             ReadConfigFile configs = ReadConfigFile.getInstance();
             KEY_STORE_PATH = configs.getProperty("TRUSTSTORE.PATH");
             KEY_STORE_PASSWORD = configs.getProperty("TRUSTSTORE.PASSWORD");
+            SOCKET_TIMEOUT = configs.getProperty("SOCKET.TIMEOUT");
             keyStore = KeyStore.getInstance("jks");
             try (InputStream keyStoreInput = new FileInputStream(KEY_STORE_PATH)) {
                 keyStore.load(keyStoreInput, KEY_STORE_PASSWORD.toCharArray());
@@ -83,7 +84,7 @@ public class HttpClientManager {
 
             RequestConfig requestConfig = RequestConfig.custom()
                     .setConnectTimeout(CONNECTION_TIMEOUT_MS)
-                    .setSocketTimeout(SOCKET_TIMEOUT_MS)
+                    .setSocketTimeout(Integer.parseInt(SOCKET_TIMEOUT))
                     .build();
 
             httpClient = HttpClients.custom()
