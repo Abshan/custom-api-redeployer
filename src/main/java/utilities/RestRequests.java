@@ -53,16 +53,17 @@ public class RestRequests {
                     " apim:api_import_export apim:api_list_view apim:api_create apim:api_publish"));
 
             httpPost.setEntity(new UrlEncodedFormEntity(namevaluePairs, HTTP.UTF_8));
-            CloseableHttpResponse response = httpClient.execute(httpPost);
-            HttpEntity entity = response.getEntity();
-            String responseString = EntityUtils.toString(entity);
-            if (entity != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                JSONParser parser = new JSONParser();
-                tokenDetails = (JSONObject) parser.parse(responseString);
-            } else {
-                logger.error("Error in getToken REST request: {} | Response: {}", url, responseString);
+            try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                HttpEntity entity = response.getEntity();
+                String responseString = entity != null ? EntityUtils.toString(entity) : "";
+                if (entity != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                    JSONParser parser = new JSONParser();
+                    tokenDetails = (JSONObject) parser.parse(responseString);
+                } else {
+                    logger.error("Error in getToken REST request: {} | Response: {}", url, responseString);
+                }
+                EntityUtils.consume(entity);
             }
-            EntityUtils.consume(entity);
         } catch (IOException | ParseException e) {
             logger.error("Exception in getToken: {}", e.getMessage(), e);
         }
@@ -79,19 +80,20 @@ public class RestRequests {
         try {
             HttpGet httpget = new HttpGet(url);
             httpget.addHeader(HttpHeaders.AUTHORIZATION, AUTH_BEARER + accessToken);
-            CloseableHttpResponse response = httpClient.execute(httpget);
-            HttpEntity entity = response.getEntity();
-            String responseString = EntityUtils.toString(entity);
-            if (entity != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                JSONParser parser = new JSONParser();
-                JSONObject responseJson = (JSONObject) parser.parse(responseString);
-                if (responseJson.get("list") instanceof ArrayList) {
-                    apiDetailsList = (ArrayList<JSONObject>) responseJson.get("list");
+            try (CloseableHttpResponse response = httpClient.execute(httpget)) {
+                HttpEntity entity = response.getEntity();
+                String responseString = entity != null ? EntityUtils.toString(entity) : "";
+                if (entity != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                    JSONParser parser = new JSONParser();
+                    JSONObject responseJson = (JSONObject) parser.parse(responseString);
+                    if (responseJson.get("list") instanceof ArrayList) {
+                        apiDetailsList = (ArrayList<JSONObject>) responseJson.get("list");
+                    }
+                } else {
+                    logger.error("Error in getAPIList REST request: {} | Response: {}", url, responseString);
                 }
-            } else {
-                logger.error("Error in getAPIList REST request: {} | Response: {}", url, responseString);
+                EntityUtils.consume(entity);
             }
-            EntityUtils.consume(entity);
         } catch (IOException | ParseException e) {
             logger.error("Exception in getAPIList: {}", e.getMessage(), e);
         }
@@ -108,16 +110,17 @@ public class RestRequests {
         try {
             HttpGet httpget = new HttpGet(url);
             httpget.addHeader(HttpHeaders.AUTHORIZATION, AUTH_BEARER + accessToken);
-            CloseableHttpResponse response = httpClient.execute(httpget);
-            HttpEntity entity = response.getEntity();
-            String responseString = EntityUtils.toString(entity);
-            if (entity != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                JSONParser parser = new JSONParser();
-                apiDetails = (JSONObject) parser.parse(responseString);
-            } else {
-                logger.error("Error in getApiDetails REST request: {} | Response: {}", url, responseString);
+            try (CloseableHttpResponse response = httpClient.execute(httpget)) {
+                HttpEntity entity = response.getEntity();
+                String responseString = entity != null ? EntityUtils.toString(entity) : "";
+                if (entity != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                    JSONParser parser = new JSONParser();
+                    apiDetails = (JSONObject) parser.parse(responseString);
+                } else {
+                    logger.error("Error in getApiDetails REST request: {} | Response: {}", url, responseString);
+                }
+                EntityUtils.consume(entity);
             }
-            EntityUtils.consume(entity);
         } catch (IOException | ParseException e) {
             logger.error("Exception in getApiDetails: {}", e.getMessage(), e);
         }
@@ -136,13 +139,15 @@ public class RestRequests {
             httpPut.addHeader(HttpHeaders.AUTHORIZATION, AUTH_BEARER + accessToken);
             HttpEntity stringEntity = new StringEntity(apiData, ContentType.APPLICATION_JSON);
             httpPut.setEntity(stringEntity);
-            CloseableHttpResponse response = httpClient.execute(httpPut);
-            HttpEntity entity = response.getEntity();
-            String responseString = EntityUtils.toString(entity);
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                successState = true;
-            } else {
-                logger.error("Error in updateApi REST request: {} | Response: {}", url, responseString);
+            try (CloseableHttpResponse response = httpClient.execute(httpPut)) {
+                HttpEntity entity = response.getEntity();
+                String responseString = entity != null ? EntityUtils.toString(entity) : "";
+                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                    successState = true;
+                } else {
+                    logger.error("Error in updateApi REST request: {} | Response: {}", url, responseString);
+                }
+                EntityUtils.consume(entity);
             }
         } catch (IOException e) {
             logger.error("Exception in updateApi: {}", e.getMessage(), e);
@@ -159,19 +164,20 @@ public class RestRequests {
         try {
             HttpGet httpget = new HttpGet(url);
             httpget.addHeader(HttpHeaders.AUTHORIZATION, AUTH_BEARER + accessToken);
-            CloseableHttpResponse response = httpClient.execute(httpget);
-            HttpEntity entity = response.getEntity();
-            String responseString = EntityUtils.toString(entity);
-            if (entity != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                JSONParser parser = new JSONParser();
-                JSONObject responseJson = (JSONObject) parser.parse(responseString);
-                if (responseJson.get("list") instanceof ArrayList) {
-                    revisionDetails = (ArrayList<JSONObject>) responseJson.get("list");
+            try (CloseableHttpResponse response = httpClient.execute(httpget)) {
+                HttpEntity entity = response.getEntity();
+                String responseString = entity != null ? EntityUtils.toString(entity) : "";
+                if (entity != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                    JSONParser parser = new JSONParser();
+                    JSONObject responseJson = (JSONObject) parser.parse(responseString);
+                    if (responseJson.get("list") instanceof ArrayList) {
+                        revisionDetails = (ArrayList<JSONObject>) responseJson.get("list");
+                    }
+                } else {
+                    logger.error("Error in getRevisionDetails REST request: {} | Response: {}", url, responseString);
                 }
-            } else {
-                logger.error("Error in getRevisionDetails REST request: {} | Response: {}", url, responseString);
+                EntityUtils.consume(entity);
             }
-            EntityUtils.consume(entity);
         } catch (IOException | ParseException e) {
             logger.error("Exception in getRevisionDetails: {}", e.getMessage(), e);
         }
@@ -194,16 +200,17 @@ public class RestRequests {
             requestJson.put("description", description);
             StringEntity requestEntity = new StringEntity(requestJson.toJSONString());
             httpPost.setEntity(requestEntity);
-            CloseableHttpResponse response = httpClient.execute(httpPost);
-            HttpEntity entity = response.getEntity();
-            String responseString = EntityUtils.toString(entity);
-            if (entity != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
-                JSONParser parser = new JSONParser();
-                createRevisionResponse = (JSONObject) parser.parse(responseString);
-            } else {
-                logger.error("Error in createRevision REST request: {} | Response: {}", url, responseString);
+            try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                HttpEntity entity = response.getEntity();
+                String responseString = entity != null ? EntityUtils.toString(entity) : "";
+                if (entity != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
+                    JSONParser parser = new JSONParser();
+                    createRevisionResponse = (JSONObject) parser.parse(responseString);
+                } else {
+                    logger.error("Error in createRevision REST request: {} | Response: {}", url, responseString);
+                }
+                EntityUtils.consume(entity);
             }
-            EntityUtils.consume(entity);
         } catch (IOException | ParseException e) {
             logger.error("Exception in createRevision: {}", e.getMessage(), e);
         }
@@ -240,16 +247,17 @@ public class RestRequests {
             httpPost.addHeader(HttpHeaders.AUTHORIZATION, AUTH_BEARER + accessToken);
             HttpEntity stringEntity = new StringEntity(jsonPayload, ContentType.APPLICATION_JSON);
             httpPost.setEntity(stringEntity);
-            CloseableHttpResponse response = httpClient.execute(httpPost);
-            HttpEntity entity = response.getEntity();
-            String responseString = EntityUtils.toString(entity);
-            if (entity != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
-                JSONParser parser = new JSONParser();
-                deployRevisionResponse = (ArrayList<JSONObject>) parser.parse(responseString);
-            } else {
-                logger.error("Error in deployRevision REST request: {} | Response: {}", url, responseString);
+            try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                HttpEntity entity = response.getEntity();
+                String responseString = entity != null ? EntityUtils.toString(entity) : "";
+                if (entity != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
+                    JSONParser parser = new JSONParser();
+                    deployRevisionResponse = (ArrayList<JSONObject>) parser.parse(responseString);
+                } else {
+                    logger.error("Error in deployRevision REST request: {} | Response: {}", url, responseString);
+                }
+                EntityUtils.consume(entity);
             }
-            EntityUtils.consume(entity);
         } catch (IOException | ParseException e) {
             logger.error("Exception in deployRevision: {}", e.getMessage(), e);
         }
