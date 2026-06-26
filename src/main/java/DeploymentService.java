@@ -25,6 +25,7 @@ public class DeploymentService {
     static String keyStorePath;
     static String keyStorePassword;
     static String socketTimeout;
+    static boolean redeployEnabled;
 
     public static void main(String[] args) {
         logger.info("Starting the API deployment service...");
@@ -39,6 +40,7 @@ public class DeploymentService {
         // Parse JSON token string from the config.properties file
         if (jsonFilePath != null && !jsonFilePath.trim().isEmpty()) {
             JSONParser parser = new JSONParser();
+            boolean isError = false;
             try (FileReader reader = new FileReader(jsonFilePath)) {
                 JSONObject jsonObject = (JSONObject) parser.parse(reader);
                 Set<String> tenants = jsonObject.keySet();
@@ -90,6 +92,12 @@ public class DeploymentService {
                         }
 
                         logger.info("Finished updating API: {} with ID: {}", apiName, apiId);
+
+                        if (!redeployEnabled) {
+                            logger.info("Redeployment disabled — skipping revision creation for API: {} with ID: {}", apiName, apiId);
+                            continue;
+                        }
+
                         logger.info("Creating and deploying new revision for API: {} with ID: {}", apiName, apiId);
 
                         ArrayList<JSONObject> deployedRevisionDetails = RestRequests.getRevisionDetails(publisherRestUrl, accessToken, apiId);
@@ -115,15 +123,23 @@ public class DeploymentService {
                 }
             } catch (FileNotFoundException e) {
                 logger.error("JSON file not found: {}", jsonFilePath);
+                isError = true;
             } catch (IOException e) {
                 logger.error("IOException when reading JSON file: {}", e.getMessage());
+                isError = true;
             } catch (ParseException e) {
                 logger.error("Error parsing JSON file: {}", e.getMessage());
+                isError = true;
             } catch (Exception e) {
                 logger.error("Unexpected error: {}", e.getMessage());
                 e.printStackTrace();
+                isError = true;
             }
-            logger.info("All API redeployment processes have been successfully completed");
+            if (!isError) {
+                logger.error("API update & redeployment process has been failed");
+            } else {
+                logger.info("API update & redeployment process has been successfully completed");
+            }
         }
     }
 
@@ -142,6 +158,7 @@ public class DeploymentService {
         apiListSortBy = loadAndValidateProperty(configs, "API.LIST.SORTBY");
         apiListOrderBy = loadAndValidateProperty(configs, "API.LIST.ORDERBY");
         socketTimeout = loadAndValidateProperty(configs, "SOCKET.TIMEOUT");
+        redeployEnabled = Boolean.parseBoolean(loadAndValidateProperty(configs, "REDEPLOY.ENABLED"));
     }
 
     private static String loadAndValidateProperty(ReadConfigFile configs, String propertyName) {
